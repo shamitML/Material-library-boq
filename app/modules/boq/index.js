@@ -339,4 +339,116 @@ export default class Index {
             httpConstants.RESPONSE_CODES.OK
         );
     }
+
+    async addWorkCategories(req, res) {
+        const [error, addWorkCategoriesResponse] = await Utils.parseResponse(
+            new BLManager().addWorkCategories(req.body)
+        );
+        if (error || !addWorkCategoriesResponse) {
+            return Utils.handleError(error, req, res);
+        }
+        if (
+            addWorkCategoriesResponse.code &&
+            addWorkCategoriesResponse.code !== 200
+        ) {
+            return Utils.response(
+                res,
+                {},
+                addWorkCategoriesResponse.data,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return Utils.response(
+            res,
+            addWorkCategoriesResponse,
+            apiSuccessMessage.UPDATED_PROFESSIONAL,
+            httpConstants.RESPONSE_STATUS.SUCCESS,
+            httpConstants.RESPONSE_CODES.OK
+        );
+    }
+
+    async updateWorkCategories(req, res) {
+        const [error, updateWorkCategoriesResponse] = await Utils.parseResponse(
+            new BLManager().updateWorkCategories(req.body)
+        );
+        if (error || !updateWorkCategoriesResponse) {
+            return Utils.handleError(error, req, res);
+        }
+        if (
+            updateWorkCategoriesResponse.code &&
+            updateWorkCategoriesResponse.code !== 200
+        ) {
+            return Utils.response(
+                res,
+                {},
+                updateWorkCategoriesResponse.data,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return Utils.response(
+            res,
+            updateWorkCategoriesResponse,
+            apiSuccessMessage.UPDATED_PROFESSIONAL,
+            httpConstants.RESPONSE_STATUS.SUCCESS,
+            httpConstants.RESPONSE_CODES.OK
+        );
+    }
+
+    async deleteWorkCategories(req, res) {
+        const [error, deleteWorkCategoriesResponse] = await Utils.parseResponse(
+            new BLManager().deleteWorkCategories(req.body)
+        );
+        if (error || !deleteWorkCategoriesResponse) {
+            return Utils.handleError(error, req, res);
+        }
+        if (
+            deleteWorkCategoriesResponse.code &&
+            deleteWorkCategoriesResponse.code !== 200
+        ) {
+            return Utils.response(
+                res,
+                {},
+                deleteWorkCategoriesResponse.data,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return Utils.response(
+            res,
+            deleteWorkCategoriesResponse,
+            apiSuccessMessage.UPDATED_PROFESSIONAL,
+            httpConstants.RESPONSE_STATUS.SUCCESS,
+            httpConstants.RESPONSE_CODES.OK
+        );
+    }
+
+    async updateWorkSku(req, res) {
+        const [error, updateWorkSkuResponse] = await Utils.parseResponse(
+            new BLManager().updateWorkSku(req.body)
+        );
+        if (error || !updateWorkSkuResponse) {
+            return Utils.handleError(error, req, res);
+        }
+        if (
+            updateWorkSkuResponse.code &&
+            updateWorkSkuResponse.code !== 200
+        ) {
+            return Utils.response(
+                res,
+                {},
+                updateWorkSkuResponse.data,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return Utils.response(
+            res,
+            updateWorkSkuResponse,
+            apiSuccessMessage.UPDATED_PROFESSIONAL,
+            httpConstants.RESPONSE_STATUS.SUCCESS,
+            httpConstants.RESPONSE_CODES.OK
+        );
+    }
 }

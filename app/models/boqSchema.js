@@ -54,6 +54,24 @@ const boqSchema = new mongoose.Schema(
                 }],
             }]
         }],
+        categories: [
+            {
+                categoryName: { type: String, default: "" },
+                subcategory: [
+                    {
+                        subCategoryName: { type: String, default: "" },
+                        subSubCategory: [
+                            {
+                                subSubCategoryName: { type: String, default: "" },
+                                quantity: { type: String, default: "" },
+                                boqMatCode: { type: String, default: "" },
+                                skuInfo: { type: mongoose.Schema.Types.ObjectId, ref: "products" },
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
         mainLayouts: [
             { type: String, default: "" }
         ],
@@ -200,6 +218,45 @@ boqSchema.static({
             },
             { new: true }
         )
+    },
+    findOneAndAddWorkCat: function (findObj, updateObj) {
+        return this.findOneAndUpdate(
+            findObj,
+            {
+                $push: { categories: updateObj }
+            },
+            { new: true }
+        )
+    },
+    findOneAndUpdateWorkCat: function (findObj, updateObj) {
+        return this.findOneAndUpdate(
+            findObj,
+            {
+                $set: { "categories.$.categoryName": updateObj.categoryName, "categories.$.subcategory": updateObj.subcategory }
+            },
+            { new: true }
+        )
+    },
+    findOneAndDeleteWorkCat: function (findObj) {
+        return this.findOneAndUpdate(
+            { userId: findObj.userId },
+            {
+                $pull: { categories: { _id: { $in: findObj.cId } } }
+            },
+            { new: true }
+        )
+    },
+    findOneAndUpdateWorkSku: async function (findObj, updateObj) {
+        let user = await this.findOne({ userId: findObj.userId });
+        console.log(user.categories);
+        let category = user.categories.find(el => el.id == findObj.cId);
+        let subCategory = category.subcategory.find(el => el.id == findObj.scId);
+        let subSubCategory = subCategory.subSubCategory.find(el => el.id == findObj.sscId);
+        subSubCategory.skuInfo = updateObj.skuId;
+        subSubCategory.quantity = updateObj.quantity;
+
+        user.save();
+        return user;
     }
 });
 

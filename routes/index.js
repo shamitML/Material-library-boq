@@ -52,4 +52,21 @@ module.exports = (app) => {
     "/v0/boq/get-boq",
     new BoqCollection().getBoq
   );
+
+  app.post(
+    "/v0/boq/add-work-categories",
+    new BoqCollection().addWorkCategories
+  );
+  app.post(
+    "/v0/boq/update-work-categories",
+    new BoqCollection().updateWorkCategories
+  );
+  app.delete(
+    "/v0/boq/delete-work-categories",
+    new BoqCollection().deleteWorkCategories
+  );
+  app.post(
+    "/v0/boq/update-work-sku",
+    new BoqCollection().updateWorkSku
+  );
 };

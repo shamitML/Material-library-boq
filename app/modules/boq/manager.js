@@ -211,4 +211,65 @@ export default class Manager {
         }
         return;
     };
+
+    addWorkCategories = async (request) => {
+        console.log(request);
+        if (!request.findQuery || !request.updateQuery) {
+            return Utils.error(
+                {},
+                apiFailureMessage.INVALID_PARAMS,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return await BoqSchema.findOneAndAddWorkCat(
+            request.findQuery,
+            request.updateQuery
+        );
+    };
+
+    updateWorkCategories = async (request) => {
+        console.log(request);
+        if (!request.findQuery || !request.updateQuery) {
+            return Utils.error(
+                {},
+                apiFailureMessage.INVALID_PARAMS,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return await BoqSchema.findOneAndUpdateWorkCat(
+            request.findQuery,
+            request.updateQuery
+        );
+    };
+
+    deleteWorkCategories = async (request) => {
+        console.log(request);
+        if (!request) {
+            return Utils.error(
+                {},
+                apiFailureMessage.INVALID_PARAMS,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return await BoqSchema.findOneAndDeleteWorkCat(request);
+    };
+
+    updateWorkSku = async (request) => {
+        console.log(request);
+        if (!request.findQuery || !request.updateQuery) {
+            return Utils.error(
+                {},
+                apiFailureMessage.INVALID_PARAMS,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return await BoqSchema.findOneAndUpdateWorkSku(
+            request.findQuery,
+            request.updateQuery
+        );
+    };
 }
