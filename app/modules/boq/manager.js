@@ -272,4 +272,19 @@ export default class Manager {
             request.updateQuery
         );
     };
+
+    getFiltered = async (request) => {
+        console.log(request);
+        if (!request) {
+            return Utils.error(
+                apiFailureMessage.INVALID_PARAMS,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+
+        return await BoqSchema.findFilteredElements(request).catch((err) => {
+            throw err;
+        });
+    };
 }

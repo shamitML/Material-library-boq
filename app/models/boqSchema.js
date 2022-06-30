@@ -257,7 +257,45 @@ boqSchema.static({
 
         user.save();
         return user;
+    },
+    findFilteredElements: function (findObj) {
+        return this.find({
+            $and: [
+                { userId: findObj.userId },
+                {
+                    $or: [
+                        { "categories.categoryName": { $regex: findObj.input, $options: "i" } },
+                        { "categories.subcategory.subCategoryName": { $regex: findObj.input, $options: "i" } },
+                        { "boqStyle.location": { $regex: findObj.input, $options: "i" } },
+                        { "boqStyle.spaceInfo.spaceName": { $regex: findObj.input, $options: "i" } },
+                        { "boqStyle.spaceInfo.subSpaces.subSpaceName": { $regex: findObj.input, $options: "i" } },
+                        { "boqStyle.spaceInfo.subSpaces.categories.categoryName": { $regex: findObj.input, $options: "i" } },
+                        { "boqStyle.spaceInfo.subSpaces.categories.subcategory.subCategoryName": { $regex: findObj.input, $options: "i" } },
+                        { "boqStyle.spaceInfo.subSpaces.categories.subcategory.subSubCategory.subSubCategoryName": { $regex: findObj.input, $options: "i" } },
+                    ]
+                }
+            ]
+        })
     }
 });
 
-module.exports = mongoose.model("boqSchema", boqSchema);
+categories: [
+    {
+        categoryName: { type: String, default: "" },
+        subcategory: [
+            {
+                subCategoryName: { type: String, default: "" },
+                subSubCategory: [
+                    {
+                        subSubCategoryName: { type: String, default: "" },
+                        quantity: { type: String, default: "" },
+                        boqMatCode: { type: String, default: "" },
+                        skuInfo: { type: mongoose.Schema.Types.ObjectId, ref: "products" },
+                    }
+                ]
+            }
+        ]
+    }
+],
+
+    module.exports = mongoose.model("boqSchema", boqSchema);

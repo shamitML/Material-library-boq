@@ -451,4 +451,29 @@ export default class Index {
             httpConstants.RESPONSE_CODES.OK
         );
     }
+
+    async getFiltered(req, res) {
+        const [error, getFilteredResponse] = await Utils.parseResponse(
+            new BLManager().getFiltered(req.body)
+        );
+        if (error || !getFilteredResponse) {
+            return Utils.handleError(error, req, res);
+        }
+        if (getFilteredResponse.code && getFilteredResponse.code !== 200) {
+            return Utils.response(
+                res,
+                {},
+                getFilteredResponse.data,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return Utils.response(
+            res,
+            getFilteredResponse,
+            apiSuccessMessage.FETCH_SUCCESS,
+            httpConstants.RESPONSE_STATUS.SUCCESS,
+            httpConstants.RESPONSE_CODES.OK
+        );
+    }
 }

@@ -69,4 +69,8 @@ module.exports = (app) => {
     "/v0/boq/update-work-sku",
     new BoqCollection().updateWorkSku
   );
+  app.get(
+    "/v0/boq/filter",
+    new BoqCollection().getFiltered
+  );
 };
