@@ -279,23 +279,4 @@ boqSchema.static({
     }
 });
 
-categories: [
-    {
-        categoryName: { type: String, default: "" },
-        subcategory: [
-            {
-                subCategoryName: { type: String, default: "" },
-                subSubCategory: [
-                    {
-                        subSubCategoryName: { type: String, default: "" },
-                        quantity: { type: String, default: "" },
-                        boqMatCode: { type: String, default: "" },
-                        skuInfo: { type: mongoose.Schema.Types.ObjectId, ref: "products" },
-                    }
-                ]
-            }
-        ]
-    }
-],
-
-    module.exports = mongoose.model("boqSchema", boqSchema);
+module.exports = mongoose.model("boqSchema", boqSchema);
