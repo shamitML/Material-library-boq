@@ -26,46 +26,61 @@ const boqSchema = new mongoose.Schema(
         architectContactNo: { type: String, default: "" },
         architectEmailId: { type: String, default: "" },
         boqType: { type: String, default: "" },
-        boqStyle: [{
-            location: { type: String, default: "" },
-            spaceInfo: [{
-                spaceName: { type: String, default: "" },
-                subSpaces: [{
-                    subSpaceName: { type: String, default: "" },
-                    subSpaceNo: { type: Number, default: 0 },
-                    categories: [
-                        {
-                            categoryName: { type: String, default: "" },
-                            subcategory: [
-                                {
-                                    subCategoryName: { type: String, default: "" },
-                                    subSubCategory: [
-                                        {
-                                            subSubCategoryName: { type: String, default: "" },
-                                            quantity: { type: String, default: "" },
-                                            boqMatCode: { type: String, default: "" },
-                                            skuInfo: { type: mongoose.Schema.Types.ObjectId, ref: "products" },
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ],
-                }],
-            }]
-        }],
+        boqStyle: [
+            {
+                towerName: { type: String, default: "" },
+                towerInfo: [
+                    {
+                        location: { type: String, default: "" },
+                        space: [{
+                            spaceName: { type: String, default: "" },
+                            subSpace: [{
+                                subSpaceName: { type: String, default: "" },
+                                spaceNo: { type: String, default: "" },
+                                categories: [
+                                    {
+                                        categoryName: { type: String, default: "" },
+                                        subCategory: [
+                                            {
+                                                subCategoryName: { type: String, default: "" },
+                                                subSubCategory: [
+                                                    {
+                                                        subSubCategoryName: { type: String, default: "" },
+                                                        boqMatCode: { type: String, default: "" },
+                                                        skuInfo: { type: mongoose.Schema.Types.ObjectId, ref: "products" },
+                                                        area: { type: String, default: "" },
+                                                        materialUnitCost: { type: Number, default: 0 },
+                                                        othersUnitCost: { type: Number, default: 0 },
+                                                        totalUnitCost: { type: Number, default: 0 },
+                                                        totalCost: { type: Number, default: 0 }
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                            }],
+                        }]
+                    }
+                ]
+            },
+        ],
         categories: [
             {
                 categoryName: { type: String, default: "" },
-                subcategory: [
+                subCategory: [
                     {
                         subCategoryName: { type: String, default: "" },
                         subSubCategory: [
                             {
                                 subSubCategoryName: { type: String, default: "" },
-                                quantity: { type: String, default: "" },
                                 boqMatCode: { type: String, default: "" },
                                 skuInfo: { type: mongoose.Schema.Types.ObjectId, ref: "products" },
+                                area: { type: String, default: "" },
+                                materialUnitCost: { type: Number, default: 0 },
+                                othersUnitCost: { type: Number, default: 0 },
+                                totalUnitCost: { type: Number, default: 0 },
+                                totalCost: { type: Number, default: 0 }
                             }
                         ]
                     }
@@ -90,77 +105,87 @@ boqSchema.method({
 });
 boqSchema.static({
     findData: function (findObj) {
-        return this.find(findObj).populate('userId boqStyle.spaceInfo.subSpaces.categories.subcategory.subSubCategory.skuInfo');
+        return this.find(findObj).populate('userId boqStyle.towerInfo.space.subSpace.categories.subCategory.subSubCategory.skuInfo');
     },
     findOneData: function (findObj) {
-        return this.findOne(findObj).populate('userId boqStyle.spaceInfo.subSpaces.categories.subcategory.subSubCategory.skuInfo');
+        return this.findOne(findObj).populate('boqStyle.towerInfo.space.subSpace.categories.subCategory.subSubCategory.skuInfo categories.subCategory.subSubCategory.skuInfo'); //boqStyle.spaceInfo.subSpaces.categories.subcategory.subSubCategory.skuInfo
     },
-    findOneAndAddSpace: function (findObj, updateObj) {
-        return this.findOneAndUpdate(
-            {
-                userId: findObj.userId,
-                //"boqStyle._id": findObj.bId
-            },
-            {
-                $push: { boqStyle: updateObj }
-                //$set: { "boqStyle.$.location": updateObj.location, "boqStyle.$.spaceInfo": updateObj.spaceInfo }
-            },
-            { upsert: true, new: true }
-        )
+
+    findOneAndUpdateSpace: async function (findObj, updateObj) {
+        let doc = await this.findOne({ _id: findObj._id, userId: findObj.userId });
+
+        let tower = doc.boqStyle.find((el => el.towerName == updateObj.towerName));
+        if (!tower) {
+            doc.boqStyle.push({ towerName: updateObj.towerName, towerInfo: updateObj.towerInfo });
+            await doc.save();
+            return doc;
+        }
+
+        let loc = tower.towerInfo.find(el => el._id == updateObj.locationId);
+        if (!loc) {
+            tower.towerInfo.push(updateObj.towerInfo);
+            await doc.save();
+            return doc;
+        }
+
+        loc.location = updateObj.towerInfo.location;
+        loc.space = updateObj.towerInfo.space;
+
+        await doc.save();
+        return doc;
     },
-    findOneAndUpdateSpace: function (findObj, updateObj) {
+
+    findOneAndDeleteTower: function (findObj) {
         return this.findOneAndUpdate(
+            { userId: findObj.userId, _id: findObj._id },
             {
-                userId: findObj.userId,
-                "boqStyle._id": findObj.bId
-            },
-            {
-                $set: { "boqStyle.$.location": updateObj.location, "boqStyle.$.spaceInfo": updateObj.spaceInfo }
+                $pull: { boqStyle: { _id: { $in: findObj.towerId } } }
             },
             { new: true }
         )
     },
-    findOneAndDeleteSpace: function (findObj) {
-        return this.findOneAndUpdate(
-            { userId: findObj.userId },
-            {
-                $pull: { boqStyle: { _id: { $in: findObj.bId } } }
-            },
-            { new: true }
-        )
+
+    findOneAndDeleteSpace: async function (findObj) {
+
+        let doc = await this.findOne({ userId: findObj.userId, _id: findObj._id });
+        let tower = doc.boqStyle.find((el => el._id == findObj.towerId));
+        let loc = tower.towerInfo.findIndex(el => el._id == findObj.locationId);
+
+        tower.towerInfo.splice(loc, 1);
+        await doc.save();
+        return doc;
     },
+
     findOneAndUpdateCategories: async function (findObj, updateObj) {
-        let user = await this.findOne({ userId: findObj.userId });
-        let tower = user.boqStyle.find(el => el.id == findObj.bId);
-        let space = tower.spaceInfo.find(el => el.id == findObj.sId);
-        let subSpace = space.subSpaces.find(el => el.subSpaceNo == findObj.subSpace);
+        let user = await this.findOne(findObj);
+        let tower = user.boqStyle.find(el => el._id == updateObj.towerId);
+        let loc = tower.towerInfo.find(el => el._id == updateObj.locationId);
+        let space = loc.space.find(el => el._id == updateObj.spaceId);
+        let subSpace = space.subSpace.find(el => el._id == updateObj.subSpaceId);
 
         subSpace.categories = updateObj.categories;
-        user.save();
+        await user.save();
         return user;
     },
-    findOneAndDeleteCategories: async function (findObj) {
-        let user = await this.findOne({ userId: findObj.userId });
-        let tower = user.boqStyle.find(el => el.id == findObj.bId);
-        let space = tower.spaceInfo.find(el => el.id == findObj.sId);
-        let subSpace = space.subSpaces.find(el => el.subSpaceNo == findObj.subSpace);
 
-        let index = subSpace.categories.findIndex(el => el.id == findObj.cId);
-        subSpace.categories.splice(index, 1);
-        user.save();
-        return user;
-    },
     findOneAndUpdateSku: async function (findObj, updateObj) {
-        let user = await this.findOne({ userId: findObj.userId });
-        let tower = user.boqStyle.find(el => el.id == findObj.bId);
-        let space = tower.spaceInfo.find(el => el.id == findObj.sId);
-        let subSpace = space.subSpaces.find(el => el.subSpaceNo == findObj.subSpace);
-        let category = subSpace.categories.find(el => el.id == findObj.cId);
-        let subCategory = category.subcategory.find(el => el.id == findObj.scId);
-        let subsubCategory = subCategory.subSubCategory.find(el => el.id == findObj.sscId);
-        subsubCategory.skuInfo = updateObj.skuId;
-        subsubCategory.quantity = updateObj.quantity;
-        console.log(subsubCategory);
+        let user = await this.findOne(findObj);
+        let tower = user.boqStyle.find(el => el._id == updateObj.towerId);
+        let loc = tower.towerInfo.find(el => el._id == updateObj.locationId);
+        let space = loc.space.find(el => el._id == updateObj.spaceId);
+        let subSpace = space.subSpace.find(el => el._id == updateObj.subSpaceId);
+
+        let category = subSpace.categories.find(el => el._id == updateObj.categoryId);
+        let subCategory = category.subCategory.find(el => el._id == updateObj.subCategoryId);
+        let subSubCategory = subCategory.subSubCategory.find(el => el._id == updateObj.subSubCategoryId);
+
+        subSubCategory.skuInfo = updateObj.skuId;
+        subSubCategory.area = updateObj.area;
+        subSubCategory.materialUnitCost = updateObj.materialUnitCost;
+        subSubCategory.othersUnitCost = updateObj.othersUnitCost;
+        subSubCategory.totalUnitCost = updateObj.totalUnitCost;
+        subSubCategory.totalCost = updateObj.totalCost;
+        console.log(subSubCategory);
 
         user.save();
         return user;
@@ -219,41 +244,30 @@ boqSchema.static({
             { new: true }
         )
     },
-    findOneAndAddWorkCat: function (findObj, updateObj) {
-        return this.findOneAndUpdate(
-            findObj,
-            {
-                $push: { categories: updateObj }
-            },
-            { new: true }
-        )
-    },
+
     findOneAndUpdateWorkCat: function (findObj, updateObj) {
         return this.findOneAndUpdate(
             findObj,
             {
-                $set: { "categories.$.categoryName": updateObj.categoryName, "categories.$.subcategory": updateObj.subcategory }
+                categories: updateObj.categories
             },
             { new: true }
         )
     },
-    findOneAndDeleteWorkCat: function (findObj) {
-        return this.findOneAndUpdate(
-            { userId: findObj.userId },
-            {
-                $pull: { categories: { _id: { $in: findObj.cId } } }
-            },
-            { new: true }
-        )
-    },
+
     findOneAndUpdateWorkSku: async function (findObj, updateObj) {
         let user = await this.findOne({ userId: findObj.userId });
-        console.log(user.categories);
-        let category = user.categories.find(el => el.id == findObj.cId);
-        let subCategory = category.subcategory.find(el => el.id == findObj.scId);
-        let subSubCategory = subCategory.subSubCategory.find(el => el.id == findObj.sscId);
+        let category = user.categories.find(el => el._id == updateObj.categoryId);
+        let subCategory = category.subCategory.find(el => el._id == updateObj.subCategoryId);
+        let subSubCategory = subCategory.subSubCategory.find(el => el._id == updateObj.subSubCategoryId);
+
         subSubCategory.skuInfo = updateObj.skuId;
-        subSubCategory.quantity = updateObj.quantity;
+        subSubCategory.area = updateObj.area;
+        subSubCategory.materialUnitCost = updateObj.materialUnitCost;
+        subSubCategory.othersUnitCost = updateObj.othersUnitCost;
+        subSubCategory.totalUnitCost = updateObj.totalUnitCost;
+        subSubCategory.totalCost = updateObj.totalCost;
+        console.log(subSubCategory);
 
         user.save();
         return user;

@@ -5,16 +5,20 @@ import BoqCollection from "../app/modules/boq";
 module.exports = (app) => {
   app.get("/", (req, res) => res.send(stringConstants.SERVICE_STATUS_HTML));
   app.post(
+    "/v0/boq/create-boq",
+    new BoqCollection().createBoq
+  );
+  app.post(
     "/v0/boq/update-boq",
     new BoqCollection().updateBoq
   );
   app.post(
-    "/v0/boq/add-boq-space",
-    new BoqCollection().addBoqSpace
-  );
-  app.post(
     "/v0/boq/update-boq-space",
     new BoqCollection().updateBoqSpace
+  );
+  app.delete(
+    "/v0/boq/delete-boq-tower",
+    new BoqCollection().deleteBoqTower
   );
   app.delete(
     "/v0/boq/delete-boq-space",
@@ -23,10 +27,6 @@ module.exports = (app) => {
   app.post(
     "/v0/boq/update-boq-categories",
     new BoqCollection().updateBoqCategories
-  );
-  app.delete(
-    "/v0/boq/delete-boq-categories",
-    new BoqCollection().deleteBoqCategories
   );
   app.post(
     "/v0/boq/update-boq-sku",
@@ -49,21 +49,13 @@ module.exports = (app) => {
     new BoqCollection().deleteDetailedLayout
   );
   app.get(
-    "/v0/boq/get-boq",
+    "/v0/boq/get-boq/:_id",
     new BoqCollection().getBoq
   );
 
   app.post(
-    "/v0/boq/add-work-categories",
-    new BoqCollection().addWorkCategories
-  );
-  app.post(
     "/v0/boq/update-work-categories",
     new BoqCollection().updateWorkCategories
-  );
-  app.delete(
-    "/v0/boq/delete-work-categories",
-    new BoqCollection().deleteWorkCategories
   );
   app.post(
     "/v0/boq/update-work-sku",

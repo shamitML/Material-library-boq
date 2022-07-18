@@ -5,10 +5,25 @@ import {
     httpConstants,
 } from "../../common/constants";
 import BoqSchema from "../../models/boqSchema";
+import { costCalculator } from "../../../helper/updateSku";
 const awsUploadHelper = require("../../../helper/aws-upload");
 const uploadFile = new awsUploadHelper()
 
 export default class Manager {
+
+    createBoq = async (request) => {
+        console.log(request);
+        if (!request) {
+            return Utils.error(
+                {},
+                apiFailureMessage.INVALID_PARAMS,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        let boqObj = new BoqSchema(request);
+        return await boqObj.saveData();
+    };
 
     updateBoq = async (request) => {
         console.log(request);
@@ -21,22 +36,6 @@ export default class Manager {
             );
         }
         return await BoqSchema.findOneAndUpdateData(
-            request.findQuery,
-            request.updateQuery
-        );
-    };
-
-    addBoqSpace = async (request) => {
-        console.log(request);
-        if (!request.findQuery || !request.updateQuery) {
-            return Utils.error(
-                {},
-                apiFailureMessage.INVALID_PARAMS,
-                httpConstants.RESPONSE_STATUS.FAILURE,
-                httpConstants.RESPONSE_CODES.FORBIDDEN
-            );
-        }
-        return await BoqSchema.findOneAndAddSpace(
             request.findQuery,
             request.updateQuery
         );
@@ -56,6 +55,19 @@ export default class Manager {
             request.findQuery,
             request.updateQuery
         );
+    };
+
+    deleteBoqTower = async (request) => {
+        console.log(request);
+        if (!request) {
+            return Utils.error(
+                {},
+                apiFailureMessage.INVALID_PARAMS,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return await BoqSchema.findOneAndDeleteTower(request);
     };
 
     deleteBoqSpace = async (request) => {
@@ -87,19 +99,6 @@ export default class Manager {
         );
     };
 
-    deleteBoqCategories = async (request) => {
-        console.log(request);
-        if (!request) {
-            return Utils.error(
-                {},
-                apiFailureMessage.INVALID_PARAMS,
-                httpConstants.RESPONSE_STATUS.FAILURE,
-                httpConstants.RESPONSE_CODES.FORBIDDEN
-            );
-        }
-        return await BoqSchema.findOneAndDeleteCategories(request);
-    };
-
     updateBoqSkuInfo = async (request) => {
         console.log(request);
         if (!request.findQuery || !request.updateQuery) {
@@ -110,10 +109,12 @@ export default class Manager {
                 httpConstants.RESPONSE_CODES.FORBIDDEN
             );
         }
-        return await BoqSchema.findOneAndUpdateSku(
-            request.findQuery,
-            request.updateQuery
-        );
+
+        request.updateQuery = await costCalculator(request.updateQuery);
+        console.log(request.updateQuery);
+
+        return await BoqSchema.findOneAndUpdateSku(request.findQuery, request.updateQuery);
+
     };
 
     getBoq = async (request) => {
@@ -212,22 +213,6 @@ export default class Manager {
         return;
     };
 
-    addWorkCategories = async (request) => {
-        console.log(request);
-        if (!request.findQuery || !request.updateQuery) {
-            return Utils.error(
-                {},
-                apiFailureMessage.INVALID_PARAMS,
-                httpConstants.RESPONSE_STATUS.FAILURE,
-                httpConstants.RESPONSE_CODES.FORBIDDEN
-            );
-        }
-        return await BoqSchema.findOneAndAddWorkCat(
-            request.findQuery,
-            request.updateQuery
-        );
-    };
-
     updateWorkCategories = async (request) => {
         console.log(request);
         if (!request.findQuery || !request.updateQuery) {
@@ -244,19 +229,6 @@ export default class Manager {
         );
     };
 
-    deleteWorkCategories = async (request) => {
-        console.log(request);
-        if (!request) {
-            return Utils.error(
-                {},
-                apiFailureMessage.INVALID_PARAMS,
-                httpConstants.RESPONSE_STATUS.FAILURE,
-                httpConstants.RESPONSE_CODES.FORBIDDEN
-            );
-        }
-        return await BoqSchema.findOneAndDeleteWorkCat(request);
-    };
-
     updateWorkSku = async (request) => {
         console.log(request);
         if (!request.findQuery || !request.updateQuery) {
@@ -267,6 +239,11 @@ export default class Manager {
                 httpConstants.RESPONSE_CODES.FORBIDDEN
             );
         }
+
+        if (request.updateQuery.skuId) {
+            request.updateQuery = await costCalculator(request.updateQuery);
+        }
+
         return await BoqSchema.findOneAndUpdateWorkSku(
             request.findQuery,
             request.updateQuery

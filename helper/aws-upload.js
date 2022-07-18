@@ -33,6 +33,7 @@ module.exports = function () {
         Body: buf,
         ContentEncoding: "base64",
         ContentType: `image/${type}`,
+        ACL: "public-read"
       };
       s3.upload(params, function (err, data) {
         if (err) {

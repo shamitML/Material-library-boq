@@ -7,6 +7,35 @@ import {
 import BLManager from "./manager";
 
 export default class Index {
+
+    async createBoq(req, res) {
+        const [error, createBoqResponse] = await Utils.parseResponse(
+            new BLManager().createBoq(req.body)
+        );
+        if (error || !createBoqResponse) {
+            return Utils.handleError(error, req, res);
+        }
+        if (
+            createBoqResponse.code &&
+            createBoqResponse.code !== 200
+        ) {
+            return Utils.response(
+                res,
+                {},
+                createBoqResponse.data,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return Utils.response(
+            res,
+            createBoqResponse,
+            apiSuccessMessage.UPDATED_PROFESSIONAL,
+            httpConstants.RESPONSE_STATUS.SUCCESS,
+            httpConstants.RESPONSE_CODES.OK
+        );
+    }
+
     async updateBoq(req, res) {
         const [error, updateBoqResponse] = await Utils.parseResponse(
             new BLManager().updateBoq(req.body)
@@ -35,34 +64,6 @@ export default class Index {
         );
     }
 
-    async addBoqSpace(req, res) {
-        const [error, addBoqSpaceResponse] = await Utils.parseResponse(
-            new BLManager().addBoqSpace(req.body)
-        );
-        if (error || !addBoqSpaceResponse) {
-            return Utils.handleError(error, req, res);
-        }
-        if (
-            addBoqSpaceResponse.code &&
-            addBoqSpaceResponse.code !== 200
-        ) {
-            return Utils.response(
-                res,
-                {},
-                addBoqSpaceResponse.data,
-                httpConstants.RESPONSE_STATUS.FAILURE,
-                httpConstants.RESPONSE_CODES.FORBIDDEN
-            );
-        }
-        return Utils.response(
-            res,
-            addBoqSpaceResponse,
-            apiSuccessMessage.UPDATED_PROFESSIONAL,
-            httpConstants.RESPONSE_STATUS.SUCCESS,
-            httpConstants.RESPONSE_CODES.OK
-        );
-    }
-
     async updateBoqSpace(req, res) {
         const [error, updateBoqSpaceResponse] = await Utils.parseResponse(
             new BLManager().updateBoqSpace(req.body)
@@ -85,6 +86,34 @@ export default class Index {
         return Utils.response(
             res,
             updateBoqSpaceResponse,
+            apiSuccessMessage.UPDATED_PROFESSIONAL,
+            httpConstants.RESPONSE_STATUS.SUCCESS,
+            httpConstants.RESPONSE_CODES.OK
+        );
+    }
+
+    async deleteBoqTower(req, res) {
+        const [error, deleteBoqTowerResponse] = await Utils.parseResponse(
+            new BLManager().deleteBoqTower(req.body)
+        );
+        if (error || !deleteBoqTowerResponse) {
+            return Utils.handleError(error, req, res);
+        }
+        if (
+            deleteBoqTowerResponse.code &&
+            deleteBoqTowerResponse.code !== 200
+        ) {
+            return Utils.response(
+                res,
+                {},
+                deleteBoqTowerResponse.data,
+                httpConstants.RESPONSE_STATUS.FAILURE,
+                httpConstants.RESPONSE_CODES.FORBIDDEN
+            );
+        }
+        return Utils.response(
+            res,
+            deleteBoqTowerResponse,
             apiSuccessMessage.UPDATED_PROFESSIONAL,
             httpConstants.RESPONSE_STATUS.SUCCESS,
             httpConstants.RESPONSE_CODES.OK
@@ -141,34 +170,6 @@ export default class Index {
         return Utils.response(
             res,
             updateBoqCategoriesResponse,
-            apiSuccessMessage.UPDATED_PROFESSIONAL,
-            httpConstants.RESPONSE_STATUS.SUCCESS,
-            httpConstants.RESPONSE_CODES.OK
-        );
-    }
-
-    async deleteBoqCategories(req, res) {
-        const [error, deleteBoqCategoriesResponse] = await Utils.parseResponse(
-            new BLManager().deleteBoqCategories(req.body)
-        );
-        if (error || !deleteBoqCategoriesResponse) {
-            return Utils.handleError(error, req, res);
-        }
-        if (
-            deleteBoqCategoriesResponse.code &&
-            deleteBoqCategoriesResponse.code !== 200
-        ) {
-            return Utils.response(
-                res,
-                {},
-                deleteBoqCategoriesResponse.data,
-                httpConstants.RESPONSE_STATUS.FAILURE,
-                httpConstants.RESPONSE_CODES.FORBIDDEN
-            );
-        }
-        return Utils.response(
-            res,
-            deleteBoqCategoriesResponse,
             apiSuccessMessage.UPDATED_PROFESSIONAL,
             httpConstants.RESPONSE_STATUS.SUCCESS,
             httpConstants.RESPONSE_CODES.OK
@@ -317,7 +318,7 @@ export default class Index {
 
     async getBoq(req, res) {
         const [error, getBoqResponse] = await Utils.parseResponse(
-            new BLManager().getBoq(req.body)
+            new BLManager().getBoq(req.params)
         );
         if (error || !getBoqResponse) {
             return Utils.handleError(error, req, res);
@@ -335,34 +336,6 @@ export default class Index {
             res,
             getBoqResponse,
             apiSuccessMessage.FETCH_SUCCESS,
-            httpConstants.RESPONSE_STATUS.SUCCESS,
-            httpConstants.RESPONSE_CODES.OK
-        );
-    }
-
-    async addWorkCategories(req, res) {
-        const [error, addWorkCategoriesResponse] = await Utils.parseResponse(
-            new BLManager().addWorkCategories(req.body)
-        );
-        if (error || !addWorkCategoriesResponse) {
-            return Utils.handleError(error, req, res);
-        }
-        if (
-            addWorkCategoriesResponse.code &&
-            addWorkCategoriesResponse.code !== 200
-        ) {
-            return Utils.response(
-                res,
-                {},
-                addWorkCategoriesResponse.data,
-                httpConstants.RESPONSE_STATUS.FAILURE,
-                httpConstants.RESPONSE_CODES.FORBIDDEN
-            );
-        }
-        return Utils.response(
-            res,
-            addWorkCategoriesResponse,
-            apiSuccessMessage.UPDATED_PROFESSIONAL,
             httpConstants.RESPONSE_STATUS.SUCCESS,
             httpConstants.RESPONSE_CODES.OK
         );
@@ -390,34 +363,6 @@ export default class Index {
         return Utils.response(
             res,
             updateWorkCategoriesResponse,
-            apiSuccessMessage.UPDATED_PROFESSIONAL,
-            httpConstants.RESPONSE_STATUS.SUCCESS,
-            httpConstants.RESPONSE_CODES.OK
-        );
-    }
-
-    async deleteWorkCategories(req, res) {
-        const [error, deleteWorkCategoriesResponse] = await Utils.parseResponse(
-            new BLManager().deleteWorkCategories(req.body)
-        );
-        if (error || !deleteWorkCategoriesResponse) {
-            return Utils.handleError(error, req, res);
-        }
-        if (
-            deleteWorkCategoriesResponse.code &&
-            deleteWorkCategoriesResponse.code !== 200
-        ) {
-            return Utils.response(
-                res,
-                {},
-                deleteWorkCategoriesResponse.data,
-                httpConstants.RESPONSE_STATUS.FAILURE,
-                httpConstants.RESPONSE_CODES.FORBIDDEN
-            );
-        }
-        return Utils.response(
-            res,
-            deleteWorkCategoriesResponse,
             apiSuccessMessage.UPDATED_PROFESSIONAL,
             httpConstants.RESPONSE_STATUS.SUCCESS,
             httpConstants.RESPONSE_CODES.OK
